@@ -1,0 +1,754 @@
+#include <iostream>
+#include <cctype>
+#include <string>
+#include <iomanip>
+#include <array>
+#include <random>
+#include <conio.h>
+
+using namespace std;
+
+
+///// first class, for the information for the different courses
+class Course
+{
+private:
+    string code;
+    int credits;
+    string name;
+    int startTime;
+    int endTime;
+    string department;
+
+public:
+    Course()
+    {
+    }
+
+    Course(string _code, int _credits, string _name, int _startTime, int _endTime, string _department) 
+    {
+        code = _code;
+        credits = _credits;
+        name = _name;
+        startTime = _startTime;
+        endTime = _startTime;
+        department = _department;
+    }
+
+    string getName()
+    {
+        return name;
+    }
+    string getCode()
+    {
+        return code;
+    }
+    int getCredits()
+    {
+        return credits;
+    }
+    int getStartTime()
+    {
+        return startTime;
+    }
+    int getEndTime()
+    {
+        return endTime;
+    }
+    string getStartTimeSrting()
+    {
+        int hour = startTime / 3600;
+        int minute = startTime % 3600 / 60;
+        return to_string(hour) + " : " + to_string(minute);
+    }
+    string getEndTimeSrting()
+    {
+        int hour = endTime / 3600;
+        int minute = endTime % 3600 / 60;
+        return to_string(hour) + " : " + to_string(minute);
+    }
+    string getDepartment()
+    {
+        return department;
+    }
+};
+
+///// second class, for student
+class Student 
+{
+
+private:
+    string name;
+    string major;
+    int year;
+
+
+public:
+    double totalGPA = 0.0;
+    int totalCredits = 0;
+    string classCode;
+    int credits;
+    double gpa;
+
+    void twod_array_gpa()
+    {
+    }
+
+    ////// just for the user, not stored
+    void inputPersonalInfo()
+    {
+        cout << "Enter your name: ";
+        cin >> name;
+        cout << "Enter your major: ";
+        cin >> major;
+        cout << "Enter your year level: ";
+        cin >> year;
+    }
+
+    ///// to show what the user inputed 
+    void printPersonalInfo() const
+    {
+        cout << endl
+             << "Personal Information:" << endl;
+        cout << "Name: " << name << endl;
+        cout << "Major: " << major << endl;
+        cout << "Year Level: " << year << endl;
+        return;
+    }
+
+    ///// how the user inputs the classes that were just taken
+    void inputGrades()
+    {
+        string classes[10][3];
+        int i = 0;
+
+        while (totalCredits < 17)   ///// a loop so the program stops asking for the class as long as the credits is less then 17
+        {
+            cout << endl
+                 << "Enter class code: ";
+
+            cin >> classCode;
+
+            cout << "Enter credit hours: ";
+
+            cin >> credits;
+
+            cout << "Enter GPA: ";
+
+            cin >> gpa;
+
+            totalGPA += (gpa * credits);    ///// total gpa
+            totalCredits += credits;    ///// total credits
+            
+            ///// this is for the display of classes inputed by the user
+            classes[i][0] = classCode;  
+            classes[i][1] = to_string(credits);     ///// https://cplusplus.com/reference/string/to_string/
+            classes[i][2] = to_string(gpa).substr(0, 4);    ///// https://cplusplus.com/reference/string/string/substr/
+            i++;
+        }
+
+        cout << " " << endl;
+        cout << "-----------------------------" << endl;
+
+        ///// this is for the display of classes inputed by the user
+        cout << endl;
+        cout << setw(10);   // https://cplusplus.com/forum/beginner/207948/
+        cout << "Class";
+        cout << setw(5);
+        cout << "Cred";
+        cout << setw(6);
+        cout << "GPA";
+        cout << endl;
+        for (int j = 0; j < 10; j++)
+        {
+            if (classes[j][0].length() > 0) ///// https://cplusplus.com/reference/string/string/length/
+            {
+                cout << setw(10)
+                     << classes[j][0]
+                     << setw(5)
+                     << classes[j][1]
+                     << setw(6)
+                     << classes[j][2];
+                if (stod(classes[j][2]) < 2.0) ///// https://cplusplus.com/reference/string/stod/?kw=stod
+                    cout << " WARNING!";    ///// to warn if user is below a certain gpa (2.0)
+                cout << endl;
+            }
+        }
+        cout << " " << endl;
+        cout << "-----------------------------" << endl;
+        cout << " " << endl;
+
+        double overallGPA = totalGPA / totalCredits;    ///// gpa calculater
+        printGrades(overallGPA);
+    }
+
+    void printGrades(double overallGPA) const
+    {
+        cout << "Grades Summary:" << endl;
+        cout << "Overall GPA: " << overallGPA << endl;
+
+        string programType;
+        cout << "Select program type (honors/regular): ";      ///// depending whether honors or not the warning will be different
+        cin >> programType;
+
+        if (programType == "honors" && overallGPA < 3.0)
+        {
+            cout << "Warning: Honors program requires a minimum GPA of 3.0" << endl;
+        }
+        else if (programType == "regular" && overallGPA < 2.0)
+        {
+            cout << "Warning: Regular program requires a minimum GPA of 2.0" << endl;
+        }
+    }
+};
+
+
+const int NUM_COURSES = 100;
+
+
+class Schedule  ///// third and last class for the schedule, specifically next semester schedule
+{
+private:
+    Course myCourse[30];
+    int count = 0;
+    int credits = 0;
+
+public:
+    Schedule()
+    {
+        cout << "Schedule constructed" << endl;
+    }
+    bool chechIfExists(Course c)    ///// https://cplusplus.com/forum/beginner/65528/
+    {
+        cout << "Checking the course... " << endl;
+        for (int i = 0; i < count; i++)
+        {
+            cout << myCourse[i].getCode() << " : " << c.getCode() << endl;
+            if (myCourse[i].getCode() == c.getCode())
+            {
+                cout << "course already registered!" << endl;
+                return true;
+            }
+        }
+        return false;
+    }
+    bool checkIfCollides(Course c)
+    {
+        cout << "Checking if this class fits schedule. Thank you for waiting... " << endl;
+        for (int i = 0; i < count; i++)
+        {
+            int s1 = myCourse->getStartTime();
+            int e1 = myCourse->getEndTime();
+            int s2 = c.getStartTime();
+            int e2 = c.getEndTime();
+
+            if ((s2 >= s1 and s2 <= e1) or (e2 >= s1 and e2 <= e1))
+            {
+                cout << "Schedules collide." << endl;
+                return true;
+            }
+            else if ((s1 >= s2 and s1 <= e2) or (e1 >= s2 and e1 <= e2))
+            {
+                cout << "Schedules collide." << endl;
+                return true;
+            }
+            else
+            {
+                cout << "All set!";
+                return false;
+            }
+        }
+        return false;
+    }
+    bool addCourse(Course c)    ///// https://cplusplus.com/forum/beginner/65528/
+    {
+        bool exists = chechIfExists(c);
+        bool collides = checkIfCollides(c);
+        if (exists == false and collides == false)
+        {
+            myCourse[count] = c;
+            credits += c.getCredits();
+            count++;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    void printCourse()
+    {
+        cout << "Total registered credits: " << credits << endl;
+        for (int i = 0; i < count; i++)
+        {
+            cout << i + 1 << ". " << myCourse[i].getCode() << " " << myCourse[i].getName() << "\t" << myCourse[i].getCredits() << endl;
+        }
+    }
+};
+
+string when_to_register;
+
+string registration_time(int overall_credits)
+{
+    bool fall_spring;
+
+    cout << "Are you registering for fall semester (0) or spring/jan term (1)?" << endl;
+    cin >> fall_spring;
+
+    ///// there are two possibilities just incase user inputs the words lowercase instead uppercase
+    if (fall_spring = 1 && overall_credits >= 128)
+        when_to_register = "November 6 at 9:00am";
+    else if (fall_spring = 1 && overall_credits >= 120)
+        when_to_register = "November 6 at 10:00am";
+    else if (fall_spring = 1 && overall_credits >= 115)
+        when_to_register = "November 6 at 11:00am";
+    else if (fall_spring = 1 && overall_credits >= 110)
+        when_to_register = "November 6 at 12:00pm";
+    else if (fall_spring = 1 && overall_credits >= 107)
+        when_to_register = "November 6 at 1:00pm";
+    else if (fall_spring = 1 && overall_credits >= 103)
+        when_to_register = "November 6 at 2:00pm";
+    else if (fall_spring = 1 && overall_credits >= 102)
+        when_to_register = "November 7 at 9:00am";
+    else if (fall_spring = 1 && overall_credits >= 100)
+        when_to_register = "November 7 at 10:00am";
+    else if (fall_spring = 1 && overall_credits >= 98)
+        when_to_register = "November 7 at 11:00am";
+    else if (fall_spring = 1 && overall_credits >= 96)
+        when_to_register = "November 7 at 12:00pm";
+    else if (fall_spring = 1 && overall_credits >= 94)
+        when_to_register = "November 7 at 1:00pm";
+    else if (fall_spring = 1 && overall_credits >= 92)
+        when_to_register = "November 7 at 2:00pm";
+    else if (fall_spring = 1 && overall_credits >= 91)
+        when_to_register = "November 8 at 9:00am";
+    else if (fall_spring = 1 && overall_credits >= 88)
+        when_to_register = "November 8 at 10:00am";
+    else if (fall_spring = 1 && overall_credits >= 83)
+        when_to_register = "November 8 at 11:00am";
+    else if (fall_spring = 1 && overall_credits >= 79)
+        when_to_register = "November 8 at 12:00pm";
+    else if (fall_spring = 1 && overall_credits >= 76)
+        when_to_register = "November 8 at 1:00pm";
+    else if (fall_spring = 1 && overall_credits >= 72)
+        when_to_register = "November 8 at 2:00pm";
+    else if (fall_spring = 1 && overall_credits >= 68)
+        when_to_register = "November 9 at 9:00am";
+    else if (fall_spring = 1 && overall_credits >= 66)
+        when_to_register = "November 9 at 10:00am";
+    else if (fall_spring = 1 && overall_credits >= 65)
+        when_to_register = "November 9 at 11:00am";
+    else if (fall_spring = 1 && overall_credits >= 63)
+        when_to_register = "November 9 at 12:00pm";
+    else if (fall_spring = 1 && overall_credits >= 61)
+        when_to_register = "November 9 at 1:00pm";
+    else if (fall_spring = 1 && overall_credits >= 60)
+        when_to_register = "November 9 at 2:00pm";
+    else if (fall_spring = 1 && overall_credits >= 58)
+        when_to_register = "November 10 at 9:00am";
+    else if (fall_spring = 1 && overall_credits >= 56)
+        when_to_register = "November 10 at 10:00am";
+    else if (fall_spring = 1 && overall_credits >= 52)
+        when_to_register = "November 10 at 11:00am";
+    else if (fall_spring = 1 && overall_credits >= 49)
+        when_to_register = "November 10 at 12:00pm";
+    else if (fall_spring = 1 && overall_credits >= 45)
+        when_to_register = "November 10 at 1:00pm";
+    else if (fall_spring = 1 && overall_credits >= 42)
+        when_to_register = "November 10 at 2:00pm";
+    else if (fall_spring = 1 && overall_credits >= 37)
+        when_to_register = "November 13 at 9:00am";
+    else if (fall_spring = 1 && overall_credits >= 35)
+        when_to_register = "November 13 at 10:00am";
+    else if (fall_spring = 1 && overall_credits >= 33)
+        when_to_register = "November 13 at 11:00am";
+    else if (fall_spring = 1 && overall_credits >= 31)
+        when_to_register = "November 13 at 12:00pm";
+    else if (fall_spring = 1 && overall_credits >= 28)
+        when_to_register = "November 13 at 1:00pm";
+    else if (fall_spring = 1 && overall_credits >= 26)
+        when_to_register = "November 13 at 2:00pm";
+    else if (fall_spring = 1 && overall_credits >= 24)
+        when_to_register = "November 14 at 9:00am";
+    else if (fall_spring = 1 && overall_credits >= 19)
+        when_to_register = "November 14 at 10:00am";
+    else if (fall_spring = 1 && overall_credits >= 16)
+        when_to_register = "November 14 at 11:00am";
+    else if (fall_spring = 1 && overall_credits >= 9)
+        when_to_register = "November 14 at 12:00pm";
+    else if (fall_spring = 1 && overall_credits >= 4)
+        when_to_register = "November 14 at 1:00pm";
+    else if (fall_spring = 1 && overall_credits >= 1)
+        when_to_register = "November 14 at 2:00pm";
+
+    if (fall_spring = 0 && overall_credits >= 128)
+        when_to_register = "July 6 at 9:00am";
+    else if (fall_spring = 0 && overall_credits >= 120)
+        when_to_register = "July 6 at 10:00am";
+    else if (fall_spring = 0 && overall_credits >= 115)
+        when_to_register = "July 6 at 11:00am";
+    else if (fall_spring = 0 && overall_credits >= 110)
+        when_to_register = "July 6 at 12:00pm";
+    else if (fall_spring = 0 && overall_credits >= 107)
+        when_to_register = "July 6 at 1:00pm";
+    else if (fall_spring = 0 && overall_credits >= 103)
+        when_to_register = "July 6 at 2:00pm";
+    else if (fall_spring = 0 && overall_credits >= 102)
+        when_to_register = "July 7 at 9:00am";
+    else if (fall_spring = 0 && overall_credits >= 100)
+        when_to_register = "July 7 at 10:00am";
+    else if (fall_spring = 0 && overall_credits >= 98)
+        when_to_register = "July 7 at 11:00am";
+    else if (fall_spring = 0 && overall_credits >= 96)
+        when_to_register = "July 7 at 12:00pm";
+    else if (fall_spring = 0 && overall_credits >= 94)
+        when_to_register = "July 7 at 1:00pm";
+    else if (fall_spring = 0 && overall_credits >= 92)
+        when_to_register = "July 7 at 2:00pm";
+    else if (fall_spring = 0 && overall_credits >= 91)
+        when_to_register = "July 8 at 9:00am";
+    else if (fall_spring = 0 && overall_credits >= 88)
+        when_to_register = "July 8 at 10:00am";
+    else if (fall_spring = 0 && overall_credits >= 83)
+        when_to_register = "July 8 at 11:00am";
+    else if (fall_spring = 0 && overall_credits >= 79)
+        when_to_register = "July 8 at 12:00pm";
+    else if (fall_spring = 0 && overall_credits >= 76)
+        when_to_register = "July 8 at 1:00pm";
+    else if (fall_spring = 0 && overall_credits >= 72)
+        when_to_register = "July 8 at 2:00pm";
+    else if (fall_spring = 0 && overall_credits >= 68)
+        when_to_register = "July 9 at 9:00am";
+    else if (fall_spring = 0 && overall_credits >= 66)
+        when_to_register = "July 9 at 10:00am";
+    else if (fall_spring = 0 && overall_credits >= 65)
+        when_to_register = "July 9 at 11:00am";
+    else if (fall_spring = 0 && overall_credits >= 63)
+        when_to_register = "July 9 at 12:00pm";
+    else if (fall_spring = 0 && overall_credits >= 61)
+        when_to_register = "July 9 at 1:00pm";
+    else if (fall_spring = 0 && overall_credits >= 60)
+        when_to_register = "July 9 at 2:00pm";
+    else if (fall_spring = 0 && overall_credits >= 58)
+        when_to_register = "July 10 at 9:00am";
+    else if (fall_spring = 0 && overall_credits >= 56)
+        when_to_register = "July 10 at 10:00am";
+    else if (fall_spring = 0 && overall_credits >= 52)
+        when_to_register = "July 10 at 11:00am";
+    else if (fall_spring = 0 && overall_credits >= 49)
+        when_to_register = "July 10 at 12:00pm";
+    else if (fall_spring = 0 && overall_credits >= 45)
+        when_to_register = "July 10 at 1:00pm";
+    else if (fall_spring = 0 && overall_credits >= 42)
+        when_to_register = "July 10 at 2:00pm";
+    else if (fall_spring = 0 && overall_credits >= 37)
+        when_to_register = "July 13 at 9:00am";
+    else if (fall_spring = 0 && overall_credits >= 35)
+        when_to_register = "July 13 at 10:00am";
+    else if (fall_spring = 0 && overall_credits >= 33)
+        when_to_register = "July 13 at 11:00am";
+    else if (fall_spring = 0 && overall_credits >= 31)
+        when_to_register = "July 13 at 12:00pm";
+    else if (fall_spring = 0 && overall_credits >= 28)
+        when_to_register = "July 13 at 1:00pm";
+    else if (fall_spring = 0 && overall_credits >= 26)
+        when_to_register = "July 13 at 2:00pm";
+    else if (fall_spring = 0 && overall_credits >= 24)
+        when_to_register = "July 14 at 9:00am";
+    else if (fall_spring = 0 && overall_credits >= 19)
+        when_to_register = "July 14 at 10:00am";
+    else if (fall_spring = 0 && overall_credits >= 16)
+        when_to_register = "July 14 at 11:00am";
+    else if (fall_spring = 0 && overall_credits >= 9)
+        when_to_register = "July 14 at 12:00pm";
+    else if (fall_spring = 0 && overall_credits >= 4)
+        when_to_register = "July 14 at 1:00pm";
+    else if (fall_spring = 0 && overall_credits >= 1)
+        when_to_register = "July 14 at 2:00pm";
+
+    return when_to_register;
+}
+
+int total_price = 0;
+
+int financial_aid()
+{
+    string yes_no_financial;
+    string yes_no_oncampus;
+    string meal_plan;
+    int pirate_platinum = 3100;
+    int pirate_gold = 3100;
+    int pirate_silver = 2890;
+    int pirate_bronze = 2020;
+    int commuter_1 = 825;
+    int commuter_2 = 315;
+    int oncampus = 13700;
+    int financial_aid;
+    int tuiton = 24800;
+    int fees = 660;
+
+    total_price = total_price + fees + tuiton;
+
+    cout << "Do you have any Financial Aid? (yes/no)" << endl;
+    cin >> yes_no_financial;
+
+    if (yes_no_financial == "yes")
+    {
+        cout << "How much Finanical Aid do you receive?" << endl;
+        cin >> financial_aid;
+        total_price = total_price - financial_aid;
+    }
+
+    cout << "Will you be living on campus? (yes/no)" << endl;
+    cin >> yes_no_oncampus;
+
+    cout << "What will be your meal plan? " << endl;
+    cout << "The options are: " << endl
+         << "- Pirate Platinum" << endl
+         << "- Pirate Gold" << endl
+         << "- Pirate Silver" << endl
+         << "- Pirate Bronze" << endl
+         << "- Commuter 1" << endl
+         << "- Commuter 2" << endl;
+    cin >> meal_plan;
+
+    if (yes_no_oncampus == "yes")
+        total_price = total_price + oncampus;
+    else
+    {
+        total_price;
+    }
+
+    ///// there are two possibilities just incase user inputs the words lowercase instead uppercase
+    if (meal_plan == "Pirate Platinum" || meal_plan == "pirate platinum")
+        total_price = total_price + pirate_platinum;
+    else if (meal_plan == "Pirate Gold" || meal_plan == "pirate gold")
+        total_price = total_price + pirate_gold;
+    else if (meal_plan == "Pirate Silver" || meal_plan == "pirate silver")
+        total_price = total_price + pirate_silver;
+    else if (meal_plan == "Pirate Bronze" || meal_plan == "pirate bronze")
+        total_price = total_price + pirate_bronze;
+    else if (meal_plan == "Commuter 1" || meal_plan == "commuter 1")
+        total_price = total_price + commuter_1;
+    else if (meal_plan == "Commuter 2" || meal_plan == "commuter 2")
+    {
+        total_price = total_price + commuter_2;
+    }
+
+    return total_price;
+}
+int main()
+{
+    
+   Student student1; 
+    student1.inputPersonalInfo();
+    cout << " " << endl;
+    cout << "-----------------------------" << endl;
+    student1.inputGrades();
+    cout << " " << endl;
+    cout << "-----------------------------" << endl;
+    student1.printPersonalInfo();
+    cout << " " << endl;
+    cout << "-----------------------------" << endl;
+    cout << " " << endl;
+    student1.twod_array_gpa();
+    
+    int current_credits = 0;
+    Course allCourses[80] = {   ///// courses user can register for, has course code, credit, name, start time, end time, and what kind of course it is
+        Course("COM101", 4, "Intro to Comms ", 4800, 7200, "com"),
+        Course("COM202", 4, "Media Ethics    ", 10800, 18000, "com"),
+        Course("COM303", 4, "Interpersonal Comms", 25200, 32400, "com"),
+        Course("COM404", 3, "Public Speaking", 39600, 46800, "com"),
+        Course("COM505", 3, "Communication Research", 54000, 61200, "com"),
+        Course("COM606", 3, "Social Media Comms", 68400, 75600, "com"),
+        Course("COM707", 3, "Media and Society", 21000, 24600, "com"),
+        Course("COM808", 3, "Mass Communication", 33800, 35050, "com"),
+        Course("COM909", 3, "Freedom & Responsibility ", 50400, 57600, "com"),
+        Course("COM111", 3, "Internship    ", 33800, 35050, "com"),
+        Course("COM112", 4, "International Media", 50400, 5400, "com"),
+        Course("COM113", 3, "Publicity & Public Relations", 28900, 32400, "com"),
+        Course("COM114", 3, "Writing for Mass Media", 28900, 32400, "com"),
+        Course("COM115", 3, "Intro to Video Production", 28900, 32400, "com"),
+        Course("COM116", 3, "Intro to Journalism", 28900, 32400, "com"),
+        Course("COM117", 3, "Editing for Multimedia", 28900, 32400, "com"),
+        Course("COM118", 3, "Strategic Planning", 28900, 32400, "com"),
+        Course("COM119", 3, "Small Group Communication", 28900, 32400, "com"),
+        Course("COM120", 3, "Mediated Comms   ", 28900, 32400, "com"),
+        Course("COM121", 3, "Mass Media History", 28900, 32400, "com"),
+        Course("COM122", 3, "Communication Leadership", 28900, 32400, "com"),
+        Course("THEO101", 3, "Intro to Theology", 28800, 32400, "theology"),
+        Course("THEO102", 3, "Biblical Studies", 33000, 36600, "theology"),
+        Course("THEO201", 3, "Systematic Theology", 37800, 41400, "theology"),
+        Course("THEO202", 3, "Ethics and Morality", 43200, 46800, "theology"),
+        Course("THEO301", 3, "Comparative Religion", 48600, 52200, "theology"),
+        Course("THEO302", 3, "Church History ", 54000, 57600, "theology"),
+        Course("THEO401", 3, "Theology of Liberation", 58800, 62400, "theology"),
+        Course("THEO402", 3, "Theological Issues", 63000, 66600, "theology"),
+        Course("THEO501", 3, "Mystical Theology I ", 67200, 70800, "theology"),
+        Course("THEO501", 3, "Mystical Theology II", 67200, 70800, "theology"),
+        Course("CS101", 3, "Computer Science 1", 28800, 32400, "cs"),
+        Course("CS102", 3, "Data Structures", 33000, 36600, "cs"),
+        Course("CS201", 3, "Algorithms    ", 37800, 41400, "cs"),
+        Course("CS202", 3, "Computer Networks", 43200, 46800, "cs"),
+        Course("CS301", 3, "Database Systems", 48600, 52200, "cs"),
+        Course("CS302", 3, "Operating Systems", 54000, 57600, "cs"),
+        Course("CS401", 3, "Hacking Security", 58800, 62400, "cs"),
+        Course("CS402", 3, "Software Engineering", 63000, 66600, "cs"),
+        Course("CS501", 3, "Machine Learning", 67200, 70800, "cs"),
+        Course("CS502", 3, "Cybersecurity   ", 72000, 75600, "cs"),
+        Course("MAT210", 4, "Calculus I    ", 34200, 37800, "gen"),
+        Course("PHY201", 4, "Physics I    ", 34200, 37800, "gen"),
+        Course("ENG101", 3, "Intro to Literature", 26100, 29700, "gen"),
+        Course("CHE301", 4, "Organic Chemistry", 40500, 44100, "gen"),
+        Course("PSY202", 3, "Abnormal Psychology", 29700, 33300, "gen"),
+        Course("HIS215", 3, "World History", 26100, 29700, "gen"),
+        Course("BUS301", 3, "Business Ethics", 34200, 37800, "gen"),
+        Course("ART105", 3, "Intro to Art History", 26100, 29700, "gen"),
+        Course("ECO202", 3, "Macroeconomics", 33300, 36900, "gen"),
+        Course("SOC220", 3, "Sociology of Culture", 29700, 33300, "gen"),
+        Course("MUS110", 2, "Music Appreciation", 26100, 27900, "gen"),
+        Course("ENV301", 4, "Environmental Science", 37800, 41400, "gen"),
+        Course("PHI200", 3, "Introduction to Philosophy", 26100, 29700, "gen")
+    };
+
+    Schedule mySchedule;
+    Course myCourse[4][10];
+    int comLength = 0;
+    int theoLength = 0;
+    int csLength = 0;
+    int genLength = 0;
+    while (current_credits < 16)
+    {
+        char addMore;
+        cout << "You are at " << current_credits << " credits." << endl;
+        cout << "Enter to continue. Esc to exit" << endl;
+        addMore = _getch(); // https://cplusplus.com/forum/beginner/15090/
+       
+        if (addMore == 27)
+        {
+            break;
+        }
+        if (addMore == 10)
+        {
+            cout << "continuing...";
+        }
+
+        cout << "Please select a course from the following list: " << endl;
+
+        cout << "------------------------------------------------------------\n";
+        cout << "               Communication Courses" << endl;
+        for (int i = 0; i < 50; i++)  ///// prints the communication courses for user to pick from to register
+        {
+            if (allCourses[i].getDepartment() == "com")
+            {
+                cout << i + 1 << ". " << _getch << " " << allCourses[i].getName() << " " << allCourses[i].getCredits() << " credits\t" << allCourses[i].getStartTimeSrting() << "\t" << allCourses[i].getEndTimeSrting() << endl;
+            }
+        }
+        cout << "------------------------------------------------------------" << endl;
+
+        cout << "------------------------------------------------------------" << endl;
+        cout << "               Theology Courses" << endl;
+        for (int i = 0; i < 50; i++)    ///// prints theology courses for user to pick from to register
+        {
+            if (allCourses[i].getDepartment() == "theology")
+            {
+                cout << i + 1 << ". " << allCourses[i].getCode() << " " << allCourses[i].getName() << " " << allCourses[i].getCredits() << " credits\t" << allCourses[i].getStartTimeSrting() << "\t" << allCourses[i].getEndTimeSrting() << endl;
+            }
+        }
+        cout << "------------------------------------------------------------\n\n\n";
+
+        cout << "------------------------------------------------------------\n";
+        cout << "               CS Courses" << endl;
+        for (int i = 0; i < 50; i++)    ///// prints theology courses for user to pick from to register
+        {
+            if (allCourses[i].getDepartment() == "cs")
+            {
+                cout << i + 1 << ". " << allCourses[i].getCode() << " " << allCourses[i].getName() << "\t" << allCourses[i].getCredits() << " credits\t" << allCourses[i].getStartTimeSrting() << "\t" << allCourses[i].getEndTimeSrting() << endl;
+            }
+        }
+        cout << "------------------------------------------------------------\n\n\n";
+
+        cout << "------------------------------------------------------------\n";
+        cout << "               General Courses" << endl;
+        for (int i = 0; i < 50; i++)    ///// prints general courses for user to pick from to register
+        {
+            if (allCourses[i].getDepartment() == "gen")
+            {
+                cout << i + 1 << ". " << allCourses[i].getCode() << " " << allCourses[i].getName() << "\t" << allCourses[i].getCredits() << " credits\t" << allCourses[i].getStartTimeSrting() << "\t" << allCourses[i].getEndTimeSrting() << endl;
+            }
+        }
+        cout << "------------------------------------------------------------\n\n\n";
+
+        cout << "------------------------------------------------------------\n\n\n";
+        cout << "Enter course number: ";
+        int input;
+        cin >> input;
+        Course c = allCourses[input - 1];
+        bool added = mySchedule.addCourse(c);
+        cout << "added: " << added;
+        if (added)
+        {
+            if(c.getDepartment()=="com"){
+                myCourse[0][comLength] = c;
+                comLength+=1; // inputted classes will be displayed
+            }
+            if(c.getDepartment()=="theology"){
+                myCourse[1][theoLength] = c;
+                theoLength+=1;
+            }
+            if(c.getDepartment()=="cs"){
+                myCourse[2][csLength] = c;
+                csLength+=1;
+            }
+            if(c.getDepartment()=="gen"){
+                myCourse[3][genLength] = c;
+                genLength+=1;
+            }
+            current_credits = current_credits + c.getCredits();
+        }
+
+        cout << endl;
+    }
+
+    ///// a complete show of what your schedule will look like
+    cout << "--------------------------------------------" << endl;
+    cout << "                  My Schedule                 " << endl;
+    cout << "Com Courses:" << endl;
+    for (int i=0; i<=comLength; i++){   
+        cout << i + 1 << ". " << myCourse[0][i].getCode() << " " << myCourse[0][i].getName() << "  " << myCourse[0][i].getCredits() << " credits   " << myCourse[0][i].getStartTimeSrting() << " - " << myCourse[0][i].getEndTimeSrting() << endl;   
+    }
+    cout << endl;
+    cout << "Theology Courses: " << endl;
+    for (int i=0; i<=theoLength; i++){
+        cout << i + 1 << ". " << myCourse[1][i].getCode() << "  " << myCourse[1][i].getName() << "  " << myCourse[1][i].getCredits() << " credits  " << myCourse[1][i].getStartTimeSrting() << " - " << myCourse[1][i].getEndTimeSrting() << endl;   
+    }
+    cout << endl;
+    cout << "CS Courses:" << endl;
+    for (int i=0; i<=csLength; i++){
+        cout << i + 1 << ". " << myCourse[2][i].getCode() << "  " << myCourse[2][i].getName() << "  " << myCourse[2][i].getCredits() << " credits  " << myCourse[2][i].getStartTimeSrting() << " - " << myCourse[2][i].getEndTimeSrting() << endl;   
+    }
+    cout << endl;
+    cout << "Gen Courses:" << endl;
+    for (int i=0; i<=genLength; i++){
+        cout << i + 1 << ". " << myCourse[3][i].getCode() << "  " << myCourse[3][i].getName() << "  " << myCourse[3][i].getCredits() << " credits  " << myCourse[3][i].getStartTimeSrting() << " - " << myCourse[3][i].getEndTimeSrting() << endl;   
+    }
+    cout << endl;;
+
+string confirm;
+    int overall_credits;
+    cout << " " << endl;
+    cout << "-----------------------------" << endl;
+    cout << " " << endl;
+    cout << "How many credits have you completed this far into college?" << endl;
+    cin >> overall_credits;
+    cout << " " << endl;
+    registration_time(overall_credits);
+    cout << " " << endl;
+    cout << "-----------------------------" << endl;
+    cout << " " << endl;
+    financial_aid();
+    cout << " " << endl;
+    cout << "You will be registering on " << when_to_register << "." << endl;
+    cout << "You will pay " << total_price << " for next semester." << endl;
+    cout << "You have been registered! Visit the Registration Office for payment." << endl;
+}
